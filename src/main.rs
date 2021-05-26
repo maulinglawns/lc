@@ -108,7 +108,8 @@ fn main() {
         )
     }
 
-    println!("{}:\n{: <50} {: <5}", directory, "Filename", "Lines");
+    println!("{}:\n{:<50} {:<5}", directory, "Filename", "Lines");
+    println!("{:-<56}", "");
     // Sort vec by number of lines and print to stdout
     if reverse {
         filesvec.sort_by_key(|x| Reverse(x.lines));
