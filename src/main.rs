@@ -114,12 +114,12 @@ fn main() {
     if reverse {
         filesvec.sort_by_key(|x| Reverse(x.lines));
         for i in filesvec {
-            println!("{: <50} {: <5}", i.name, i.lines);
+            println!("{:<50} {:<5}", i.name, i.lines);
         }
     } else {
         filesvec.sort_by_key(|x| x.lines);
         for i in filesvec {
-            println!("{: <50} {: <5}", i.name, i.lines);
+            println!("{:<50} {:<5}", i.name, i.lines);
         }
     }
 }
