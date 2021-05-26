@@ -42,6 +42,11 @@ fn filenames(d: &str) -> Result<Vec<String>, std::io::Error> {
     Ok(fnames)
 }
 
+struct Filelines {
+    name: String,
+    lines: u32,
+}
+
 fn main() {
     let matches = App::new("lc")
                           .version("1.0")
@@ -75,11 +80,6 @@ fn main() {
     // Sort ascending by default, unless '-d' flag
     if matches.is_present("descend") {
         reverse = true;
-    }
-
-    struct Filelines {
-        name: String,
-        lines: u32,
     }
 
     // Save structs here
