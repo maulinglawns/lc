@@ -6,6 +6,38 @@ use std::cmp::Reverse;
 use std::convert::TryFrom;
 use clap::{App, Arg};
 
+fn getfiletype(p: &str) -> Result<String, String> {
+    // Check the _type_ of a file.
+    // Return one of:
+    // text, application, audio, video, image
+    let mut filetype = String::new();
+
+    if ! Path::new(p).exists() {
+        return Err(format!("{}: file or directory not found", p));
+    }
+    if ! metadata(p).unwrap().is_file() {
+        return Err(format!("{} is not a file", p));
+    }
+
+    let f = infer::get_from_path(p)
+        .expect("Could not open file");
+
+    match f {
+        // Sadly, infer cannot, eh, infer(!) the type "text" for
+        // most regular text files (.json, .txt, .yml etc).
+        // We take an educated guess that None is text,
+        // otherwise it should be application/image/video.
+        // See docs for infer crate for more info!
+        None => filetype.push_str("text"),
+        Some(f) => {
+            let typevec: Vec<_> = f.mime_type().split('/').collect();
+            filetype.push_str(typevec[0]);
+        },
+    };
+
+    Ok(filetype)
+}
+
 fn linecount(f: &str) -> Result<u32, std::io::Error> {
     // Count number of lines in file
     let file = File::open(f);
@@ -49,17 +81,22 @@ struct Filelines {
 
 fn main() {
     let matches = App::new("lc")
-                          .version("1.0")
-                          .author("Magnus W. <magnuswallin@tutanota.com>")
-                          .about("Counts lines in files. Exciting!")
-                          .arg(Arg::with_name("TARGETDIR")
-                              .help("Look for files in this directory")
-                              .required(true)
-                              .index(1))
-                          .arg(Arg::with_name("descend")
-                              .help("Sort descending by linecount")
-                              .short("d"))
-                          .get_matches();
+        .version("1.0")
+        .author("Magnus W. <magnuswallin@tutanota.com>")
+        .about("Counts lines in files. Exciting!")
+        .arg(Arg::with_name("TARGETDIR")
+            .help("Look for files in this directory")
+            .required(true)
+            .index(1))
+        .arg(Arg::with_name("descend")
+            .help("Sort descending by linecount")
+            .long("descend")
+            .short("d"))
+        .arg(Arg::with_name("textonly")
+            .help("Skip 'non-text' files. E.g. '.mp3', 'jpg', '.tar' etc.")
+            .long("textonly")
+            .short("t"))
+        .get_matches();
 
     // Sanity checks
     let directory = matches.value_of("TARGETDIR").unwrap();
@@ -76,10 +113,15 @@ fn main() {
         exit(1);
     }
 
-    let mut reverse: bool = false;
+    let mut reverse = false;
+    let mut text = false;
     // Sort ascending by default, unless '-d' flag
     if matches.is_present("descend") {
         reverse = true;
+    }
+    // Skip non-text files with '-t' flag
+    if matches.is_present("textonly") {
+        text = true;
     }
 
     // Save structs here
@@ -95,6 +137,9 @@ fn main() {
         // Don't panic if we can't open a file
         if let Err(e) = linecount(&f) {
             eprintln!("WARN! Could not open file: {}:\n{}", f, e);
+            continue;
+        }
+        if text && getfiletype(&f).unwrap() != "text" {
             continue;
         }
         // Only save filename, not full path, in struct
