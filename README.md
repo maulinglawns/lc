@@ -24,3 +24,15 @@ text files being just 'text'.
 In other words, there can be possible corner cases.
       
 See: https://crates.io/crates/infer for more information.
+
+## Example
+````
+lc ../sonarlogs/
+../sonarlogs/:
+Filename                                           Lines
+--------------------------------------------------------
+es.log                                             29   
+ce.log                                             82   
+sonar.log                                          103  
+web.log                                            171  
+````
