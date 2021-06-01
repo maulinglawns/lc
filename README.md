@@ -19,7 +19,8 @@ ARGS:
 By default files are sorted by linecount in _ascending_ order.
 
 ## Caveats
-The `-t` flag makes an educated guess, actually a _very_ educated - but still a guess, on most
-text files being just 'text'. In other words, there can be possible corner cases.
+The `-t` flag makes an educated (actually a _very_ educated) guess on most
+text files being just 'text'.  
+In other words, there can be possible corner cases.
       
 See: https://crates.io/crates/infer for more information.
