@@ -1,5 +1,5 @@
 # lc (linecount)
-Count &amp; display number of lines in files in directory <TARGETDIR>
+Count &amp; display number of lines in files in a directory
 
 ## Usage
 ````
